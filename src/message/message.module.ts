@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MessageController } from './controllers/inbound.message.controller';
 import { InboundService } from './services/inbound/inbound.service';
-// import { SupabaseService } from './services/supabase.service';
 import { ConfigModule } from '@nestjs/config';
 import { OutboundService } from './services/outbound/outbound.service';
 
