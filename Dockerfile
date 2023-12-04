@@ -25,9 +25,17 @@ WORKDIR /app
 
 # Copy the built application from the previous stage
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/yarn.lock ./
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/test ./test
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
+
+ARG ENV
+ENV CI_ENV=${ENV}
+
+ARG SERVER_RELEASE_VERSION
+ENV SERVER_RELEASE_VERSION=${SERVER_RELEASE_VERSION}
 
 # Set the entrypoint to start the application
 ENTRYPOINT [ "yarn", "start:prod" ]
