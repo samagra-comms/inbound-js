@@ -1,9 +1,6 @@
 # Stage 1: Build the application
 FROM node:18-bullseye AS builder
 
-# Install dependencies required for building
-RUN apt-get -q update
-
 WORKDIR /app
 
 # Copy package.json and yarn.lock files
@@ -30,9 +27,6 @@ COPY --from=builder /app/package.json ./
 COPY --from=builder /app/yarn.lock ./
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/test ./test
-
-ARG ENV
-ENV CI_ENV=${ENV}
 
 ARG SERVER_RELEASE_VERSION
 ENV SERVER_RELEASE_VERSION=${SERVER_RELEASE_VERSION}
