@@ -1,0 +1,48 @@
+{
+  "id": "23959262-cd8f-40ca-a20b-a6d8b1665667",
+  "neuralCoreferencedQuestion": "Hello",
+  "output": "Hello! How can I assist you today?",
+  "context": [
+    {
+      "id": 703,
+      "content": "Heading: Guidelines for MS Office Subscription Content: Every Samagra team member who is proficient with MS Office suite and mostly uses it for their\\neveryday work, now has the option to take up a paid subscription which will open up many privileged\\nfeatures which are otherwise not available in the free version.\\nThis policy shall be in effect starting from 5th Oct 2020. Please refer to the expense guidelines for \\nfurther details on the reimbursement process. ",
+      "tags": null,
+      "similarity": 0.7448264628991679,
+      "metaData": {},
+      "chunkId": 38,
+      "type": "policy"
+    },
+    {
+      "id": 733,
+      "content": "Heading: Basic Guidelines to Start at Samagra - Things to remember when in Delhi Office Content: 2. Office Coordinator: Raju Ram is our Delhi Office Coordinator. He can be contacted on \\n8860091992 for arranging tea/ coffee/ lunch and any logistical requirements \\n3. Always remember to wipe the whiteboards after use \\n4. Last one in the office must ensure all electronics are turned off (lights, fans, ACs etc) and all \\ndoors are locked \\n5. The norm is to work from the office when in Delhi. Please align with your immediate \\nmanager in advance if you need to work from home \\n6. Account submission box: Ensure to drop off service bills and reimbursement papers in the \\ndropbox every month end \\n7. Stationery: All basic stationery will be available in the office. Incase of any requirement, \\nreach out to the Office Coordinator \\n8. Late Stays for team members: If meetings at Delhi office extend beyond 8 pm you can \\nchoose to travel back through the cab provided by the empanelled service \\nprovider/Uber/Ola (and avoid travelling by bus/metro in late hours) at companys expense",
+      "tags": null,
+      "similarity": 0.739431425358092,
+      "metaData": {},
+      "chunkId": 8,
+      "type": "policy"
+    }
+  ]
+}
+
+{
+    "body": "hi",
+    "userId": "3054127f-3d49-4be2-9dd8-187ca67b1ac9",
+    "messageId": "87ff0518-ebbf-45f1-b901-88eea318bba6",
+    "conversationId": "94686c80-27b0-47f1-be90-b2d5cc94f204",
+    "mobileNumber": "9034350533"
+  }
+  
+  {
+      "to": { "userID": "admin" },
+      "from": { "userID": "7011854675" },
+      "channelURI": "WhatsApp",
+      "providerURI": "gupshup",
+      "messageState": "REPLIED",
+      "messageId": {
+        "channelMessageId": "4348300841185127424-303023573118027776",
+        "replyId": ""
+      },
+      "messageType": "TEXT",
+      "timestamp": 1701158979000,
+      "payload": { "text": "Hello" }
+  }
