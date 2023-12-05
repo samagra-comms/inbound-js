@@ -18,6 +18,8 @@ export class MessageController {
 
     @Post()
     async handleIncomingMessageData(@Body() requestData: GSWhatsAppMessage): Promise<any> {
-        await this.inboundService.handleIncomingGsWhatsappMessage(requestData);
+		if ("mobile" in requestData){
+			await this.inboundService.handleIncomingGsWhatsappMessage(requestData);
+		}
     }
 }
