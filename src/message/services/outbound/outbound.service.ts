@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { convertXMessageToMsg, gupshupWhatsappAdapterServiceConfig } from '@samagra-x/gupshup-whatsapp-adapter';
 import { ConfigService } from '@nestjs/config';
 import { StylingTag, XMessage } from '@samagra-x/xmessage';
@@ -6,6 +6,7 @@ import { StylingTag, XMessage } from '@samagra-x/xmessage';
 @Injectable()
 export class OutboundService {
     constructor(private configService: ConfigService) {}
+    private readonly logger = new Logger(OutboundService.name);
 
     async handleOrchestratorResponse(orchestratorRequest: XMessage) {
         gupshupWhatsappAdapterServiceConfig.setConfig({
@@ -33,8 +34,10 @@ export class OutboundService {
 
         if ("text" in orchestratorRequest.payload) {
             orchestratorRequest.payload.text = orchestratorRequest.payload.text.substring(0,1023)
+            this.logger.log(orchestratorRequest.payload.text.length)
         }
 
-        await convertXMessageToMsg(orchestratorRequest);
+        const adapterResponse = await convertXMessageToMsg(orchestratorRequest);
+        //throw if Not Sent
     }
 }
