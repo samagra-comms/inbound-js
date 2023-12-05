@@ -31,6 +31,10 @@ export class OutboundService {
         ];
         orchestratorRequest.payload.stylingTag = StylingTag.QUICKREPLYBTN;
 
+        if ("text" in orchestratorRequest.payload) {
+            orchestratorRequest.payload.text = orchestratorRequest.payload.text.substring(0,1023)
+        }
+
         await convertXMessageToMsg(orchestratorRequest);
     }
 }
