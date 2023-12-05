@@ -34,8 +34,10 @@ export class OutboundService {
 
         if ("text" in orchestratorRequest.payload) {
             orchestratorRequest.payload.text = orchestratorRequest.payload.text.substring(0,1023)
+            this.logger.log(orchestratorRequest.payload.text.length)
         }
 
-        await convertXMessageToMsg(orchestratorRequest);
+        const adapterResponse = await convertXMessageToMsg(orchestratorRequest);
+        //throw if Not Sent
     }
 }
