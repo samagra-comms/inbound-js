@@ -15,8 +15,8 @@ export class OutboundService {
             adapterCredentials: credentials
         });
         const adapterResponse = await convertXMessageToMsg(orchestratorRequest);
-        // if (adapterResponse.messageState = MessageState.NOT_SENT) {
-        //     throw new Error("Message Not Sent")
-        // }
+        if (adapterResponse.messageState == MessageState.NOT_SENT) {
+            throw new Error("Message Not Sent")
+        }
     }
 }
