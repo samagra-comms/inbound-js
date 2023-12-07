@@ -119,16 +119,3 @@ export class GupshupWhatsappInboundService {
         }
     }
 }
-
-// {
-//     adapterId: '7b0cf232-38a2-4f9b-8070-9b988ff94c2c',
-//     messageType: MessageType.TEXT,
-//     messageId: ,
-//     to: { userID: phoneNumber },
-//     from: { userID: 'admin' },
-//     channelURI: data.channelURI,
-//     providerURI: data.providerURI,
-//     timestamp: data.timestamp,
-//     messageState: MessageState.REPLIED,
-//     payload: data.payload
-// }
