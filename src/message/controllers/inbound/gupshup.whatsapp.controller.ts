@@ -1,15 +1,15 @@
 import { Controller, Get, Post, Body, Logger } from '@nestjs/common';
 import { GSWhatsAppMessage } from '@samagra-x/gupshup-whatsapp-adapter';
 import { ConfigService } from '@nestjs/config';
-import { InboundService } from '../services/inbound/inbound.service';
+import { GupshupWhatsappInboundService } from '../../services/inbound/gupshup.whatsapp.service';
 
 @Controller('/inbound/gupshup/whatsapp')
-export class MessageController {
+export class GupshupWhatsappInboundController {
     constructor(
         private configService: ConfigService,
-        private readonly inboundService: InboundService
+        private readonly inboundService: GupshupWhatsappInboundService
     ) {}
-    private readonly logger = new Logger(MessageController.name);
+    private readonly logger = new Logger(GupshupWhatsappInboundController.name);
 
     @Get('/health')
     async verifyEndpointIsActive(): Promise<string> {
@@ -18,6 +18,9 @@ export class MessageController {
 
     @Post()
     async handleIncomingMessageData(@Body() requestData: GSWhatsAppMessage): Promise<any> {
-        await this.inboundService.handleIncomingGsWhatsappMessage(requestData);
+		if ("mobile" in requestData){
+            this.logger.log(requestData)
+			await this.inboundService.handleIncomingGsWhatsappMessage(requestData);
+		}
     }
 }
