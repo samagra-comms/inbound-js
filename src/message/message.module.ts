@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
-import { MessageController } from './controllers/inbound.message.controller';
-import { InboundService } from './services/inbound/inbound.service';
+import { GupshupWhatsappInboundController } from './controllers/inbound/gupshup.whatsapp.controller';
+import { GupshupWhatsappInboundService } from './services/inbound/gupshup.whatsapp.service';
 import { ConfigModule } from '@nestjs/config';
 import { OutboundService } from './services/outbound/outbound.service';
+import { CredentialService } from './services/credentials/credentials.service';
 
 @Module({
   imports: [ConfigModule.forRoot()],
-  controllers: [MessageController],
+  controllers: [GupshupWhatsappInboundController],
   providers: [ 
-    InboundService,
-    OutboundService
+    GupshupWhatsappInboundService,
+    OutboundService,
+    CredentialService
   ],
 })
 export class MessageModule {}

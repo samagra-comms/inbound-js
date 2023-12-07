@@ -11,14 +11,16 @@ import { v4 as uuid4 } from 'uuid';
 
 import { OutboundService } from '../outbound/outbound.service';
 import { XMessage, MessageType, MessageState } from '@samagra-x/xmessage';
+import { CredentialService } from '../credentials/credentials.service';
 
 @Injectable()
-export class InboundService {
+export class GupshupWhatsappInboundService {
     constructor(
         private configService: ConfigService,
-        private readonly outboundService: OutboundService
+        private readonly outboundService: OutboundService,
+        private readonly credentialService: CredentialService
     ) {}
-    private readonly logger = new Logger(InboundService.name);
+    private readonly logger = new Logger(GupshupWhatsappInboundService.name);
 
     convertApiResponseToXMessage(data: any, phoneNumber): XMessage {
         return {
@@ -35,23 +37,52 @@ export class InboundService {
         };
     }
 
+    async getAdapterCredentials(number: string) {
+        if (number.endsWith('88')) {
+            const vaultResponse = await this.credentialService.getCredentialsFromVault(
+                this.configService.get<string>('VAULT_SERVICE_URL'),
+                '/admin/secret/gupshupWhatsappVariable',
+                {
+                    ownerId: '8f7ee860-0163-4229-9d2a-01cef53145ba',
+                    ownerOrgId: 'org1',
+                    'admin-token': this.configService.get<string>('VAULT_SERVICE_TOKEN')
+                }
+            );
+
+            const credentials = vaultResponse['result']['gupshupWhatsappVariable'];
+            return credentials;
+        } else if (number.endsWith('87')) {
+            const vaultResponse = await this.credentialService.getCredentialsFromVault(
+                this.configService.get<string>('VAULT_SERVICE_URL'),
+                '/admin/secret/gupshupWhatsappVariable2',
+                {
+                    ownerId: '8f7ee860-0163-4229-9d2a-01cef53145ba',
+                    ownerOrgId: 'org1',
+                    'admin-token': this.configService.get<string>('VAULT_SERVICE_TOKEN')
+                }
+            );
+
+            const credentials = vaultResponse['result']['gupshupWhatsappVariable2'];
+            return credentials;
+        } else {
+            //throw error
+            return;
+        }
+    }
+
     async handleIncomingGsWhatsappMessage(whatsappMessage: GSWhatsAppMessage) {
-        gupshupWhatsappAdapterServiceConfig.setConfig({
-            baseUrl: this.configService.get<string>('BASE_URL'),
-            adminToken: this.configService.get<string>('ADAPTER_ADMIN_TOKEN'),
-            vaultServiceToken: this.configService.get<string>('VAULT_SERVICE_TOKEN'),
-            vaultServiceUrl: this.configService.get<string>('VAULT_SERVICE_URL'),
-            gupshupUrl: this.configService.get<string>('GUPSHUP_API_ENDPOINT')
-        });
+        const adapterCredentials = await this.getAdapterCredentials(whatsappMessage.waNumber);
         try {
-            if ("interactive" in whatsappMessage) {
-                const interactiveInteraction = JSON.parse(whatsappMessage.interactive)
-                if (interactiveInteraction.type = 'button_reply') {
+            //Handle Feedback First
+            if ('interactive' in whatsappMessage) {
+                const interactiveInteraction = JSON.parse(whatsappMessage.interactive);
+                if ((interactiveInteraction.type = 'button_reply')) {
                     //handle feedback
-                    this.logger.log("Feedback is not being handled right now!")
-                    return
+                    this.logger.log('Feedback is not being handled right now!');
+                    return;
                 }
             }
+
             const xMessagePayload = await convertMessageToXMsg(whatsappMessage);
             xMessagePayload.from.userID = uuid4();
             xMessagePayload.to.userID = uuid4();
@@ -65,7 +96,9 @@ export class InboundService {
             });
 
             const xResponse = this.convertApiResponseToXMessage(resp.data, whatsappMessage.mobile.substring(2));
-            const sentResp = await this.outboundService.handleOrchestratorResponse(xResponse);
+            this.logger.log("OrchestratorResponse", xResponse)
+            const sentResp = await this.outboundService.handleOrchestratorResponse(xResponse, adapterCredentials);
+            this.logger.log("OutboundResponse",sentResp)
         } catch (error) {
             const errorResponse = this.convertApiResponseToXMessage(
                 {
@@ -81,7 +114,8 @@ export class InboundService {
                 },
                 whatsappMessage.mobile.substring(2)
             );
-            await this.outboundService.handleOrchestratorResponse(errorResponse);
+            const sentResp = await this.outboundService.handleOrchestratorResponse(errorResponse, adapterCredentials);
+            this.logger.log("OutboundErrorResponse",sentResp)
         }
     }
 }

@@ -8,7 +8,7 @@ export class OutboundMessageController {
 
     @Post()
     async handleIncomingXMessage(@Body() orchestratorRequest: XMessage): Promise<any> {
-        await this.outboundService.handleOrchestratorResponse(orchestratorRequest)
+        // await this.outboundService.handleOrchestratorResponse(orchestratorRequest)
     }
     
 }
