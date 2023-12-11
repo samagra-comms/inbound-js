@@ -1,10 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-    GSWhatsAppMessage,
-    convertMessageToXMsg,
-    convertXMessageToMsg,
-    gupshupWhatsappAdapterServiceConfig
-} from '@samagra-x/gupshup-whatsapp-adapter';
+import { GSWhatsAppMessage, convertMessageToXMsg } from '@samagra-x/gupshup-whatsapp-adapter';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { v4 as uuid4 } from 'uuid';
@@ -83,10 +78,14 @@ export class GupshupWhatsappInboundService {
                 }
             }
 
-            const xMessagePayload = await convertMessageToXMsg(whatsappMessage);
+            const xMessagePayload: XMessage = await convertMessageToXMsg(whatsappMessage);
             xMessagePayload.from.userID = uuid4();
             xMessagePayload.to.userID = uuid4();
             xMessagePayload.messageId.Id = uuid4();
+
+            if (xMessagePayload.messageType != MessageType.TEXT) {
+                throw new Error("We don't support media messages yet");
+            }
 
             const orchestratorServiceUrl = this.configService.get<string>('ORCHESTRATOR_API_ENDPOINT');
             const resp = await axios.post(orchestratorServiceUrl, xMessagePayload, {
@@ -96,9 +95,9 @@ export class GupshupWhatsappInboundService {
             });
 
             const xResponse = this.convertApiResponseToXMessage(resp.data, whatsappMessage.mobile.substring(2));
-            this.logger.log("OrchestratorResponse", xResponse)
+            this.logger.log('OrchestratorResponse', xResponse);
             const sentResp = await this.outboundService.handleOrchestratorResponse(xResponse, adapterCredentials);
-            this.logger.log("OutboundResponse",sentResp)
+            this.logger.log('OutboundResponse', sentResp);
         } catch (error) {
             const errorResponse = this.convertApiResponseToXMessage(
                 {
@@ -115,7 +114,7 @@ export class GupshupWhatsappInboundService {
                 whatsappMessage.mobile.substring(2)
             );
             const sentResp = await this.outboundService.handleOrchestratorResponse(errorResponse, adapterCredentials);
-            this.logger.log("OutboundErrorResponse",sentResp)
+            this.logger.log('OutboundErrorResponse', sentResp);
         }
     }
 }
