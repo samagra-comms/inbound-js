@@ -1,10 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-    GSWhatsAppMessage,
-    convertMessageToXMsg,
-    convertXMessageToMsg,
-    gupshupWhatsappAdapterServiceConfig
-} from '@samagra-x/gupshup-whatsapp-adapter';
+import { GSWhatsAppMessage, convertMessageToXMsg } from '@samagra-x/gupshup-whatsapp-adapter';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { v4 as uuid4 } from 'uuid';
@@ -83,10 +78,20 @@ export class GupshupWhatsappInboundService {
                 }
             }
 
-            const xMessagePayload = await convertMessageToXMsg(whatsappMessage);
+            const xMessagePayload: XMessage = await convertMessageToXMsg(whatsappMessage);
+            if (xMessagePayload.messageType != MessageType.TEXT) {
+                throw new Error("Media Type Not Supported");
+            }
+
+            this.logger.log("Converted Message:", xMessagePayload)
             xMessagePayload.from.userID = uuid4();
             xMessagePayload.to.userID = uuid4();
             xMessagePayload.messageId.Id = uuid4();
+
+            xMessagePayload.to.bot = true;
+            xMessagePayload.to.meta = xMessagePayload.to.meta || new Map<string, string>();
+            xMessagePayload.to.meta.set('botMobileNumber', whatsappMessage.waNumber);
+            console.log(xMessagePayload)
 
             const orchestratorServiceUrl = this.configService.get<string>('ORCHESTRATOR_API_ENDPOINT');
             const resp = await axios.post(orchestratorServiceUrl, xMessagePayload, {
@@ -94,12 +99,12 @@ export class GupshupWhatsappInboundService {
                     'Content-Type': 'application/json'
                 }
             });
-
-            const xResponse = this.convertApiResponseToXMessage(resp.data, whatsappMessage.mobile.substring(2));
-            this.logger.log("OrchestratorResponse", xResponse)
-            const sentResp = await this.outboundService.handleOrchestratorResponse(xResponse, adapterCredentials);
-            this.logger.log("OutboundResponse",sentResp)
+            this.logger.log('OrchestratorResponse', resp)
         } catch (error) {
+            let errorText = 'Something went wrong. Please try again later'
+            if ( error == 'Error: Media Type Not Supported') {
+                errorText = `Sorry, I can only respond to text-based questions at the moment. Please type your question using regular text characters, and I'll be happy to help!\n\nThank you for your understanding!`
+            }
             const errorResponse = this.convertApiResponseToXMessage(
                 {
                     adapterId: '7b0cf232-38a2-4f9b-8070-9b988ff94c2c',
@@ -110,12 +115,12 @@ export class GupshupWhatsappInboundService {
                     providerURI: 'gupshup',
                     timestamp: Date.now(),
                     messageState: MessageState.REPLIED,
-                    payload: { text: 'Something went wrong. Please try again later.' }
+                    payload: { text: errorText }
                 },
                 whatsappMessage.mobile.substring(2)
             );
             const sentResp = await this.outboundService.handleOrchestratorResponse(errorResponse, adapterCredentials);
-            this.logger.log("OutboundErrorResponse",sentResp)
+            this.logger.log('OutboundErrorResponse', error);
         }
     }
 }

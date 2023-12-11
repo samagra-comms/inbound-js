@@ -8,7 +8,16 @@ export class OutboundMessageController {
 
     @Post()
     async handleIncomingXMessage(@Body() orchestratorRequest: XMessage): Promise<any> {
-        // await this.outboundService.handleOrchestratorResponse(orchestratorRequest)
+
+        if (orchestratorRequest.from.bot) {
+            if ( 'botMobileNumber' in orchestratorRequest.from.meta) {
+                const botMobileNumber = orchestratorRequest.from.meta.botMobileNumber as string
+                const credentials = await this.outboundService.getAdapterCredentials(botMobileNumber)
+                await this.outboundService.handleOrchestratorResponse(orchestratorRequest, credentials)
+            }
+        }
+
+        
     }
     
 }
