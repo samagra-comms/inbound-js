@@ -7,11 +7,13 @@ import { v4 as uuid4 } from 'uuid';
 import { OutboundService } from '../outbound/outbound.service';
 import { XMessage, MessageType, MessageState } from '@samagra-x/xmessage';
 import { CredentialService } from '../credentials/credentials.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class GupshupWhatsappInboundService {
     constructor(
         private configService: ConfigService,
+        private readonly userService: UserService,
         private readonly outboundService: OutboundService,
         private readonly credentialService: CredentialService
     ) {}
@@ -78,6 +80,8 @@ export class GupshupWhatsappInboundService {
                 }
             }
 
+            console.log("User", this.userService.getUserByUsername('9550360277'))
+
             const xMessagePayload: XMessage = await convertMessageToXMsg(whatsappMessage);
             if (xMessagePayload.messageType != MessageType.TEXT) {
                 throw new Error("Media Type Not Supported");
@@ -94,12 +98,16 @@ export class GupshupWhatsappInboundService {
             console.log(xMessagePayload)
 
             const orchestratorServiceUrl = this.configService.get<string>('ORCHESTRATOR_API_ENDPOINT');
-            const resp = await axios.post(orchestratorServiceUrl, xMessagePayload, {
+            const resp = await axios.post(`${orchestratorServiceUrl}/prompt`, xMessagePayload, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
             this.logger.log('OrchestratorResponse', resp)
+            const xResponse = this.convertApiResponseToXMessage(resp.data, whatsappMessage.mobile.substring(2));
+            this.logger.log("OrchestratorResponse", xResponse)
+            const sentResp = await this.outboundService.handleOrchestratorResponse(xResponse, adapterCredentials);
+            this.logger.log("OutboundResponse",sentResp)
         } catch (error) {
             let errorText = 'Something went wrong. Please try again later'
             if ( error == 'Error: Media Type Not Supported') {
