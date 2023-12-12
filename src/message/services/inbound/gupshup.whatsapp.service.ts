@@ -69,6 +69,7 @@ export class GupshupWhatsappInboundService {
 
     async handleIncomingGsWhatsappMessage(whatsappMessage: GSWhatsAppMessage) {
         const adapterCredentials = await this.getAdapterCredentials(whatsappMessage.waNumber);
+        this.logger.log("Obtained Creds")
         try {
             //Handle Feedback First
             if ('interactive' in whatsappMessage) {
@@ -79,8 +80,6 @@ export class GupshupWhatsappInboundService {
                     return;
                 }
             }
-
-            console.log("User", this.userService.getUserByUsername('9550360277'))
 
             const xMessagePayload: XMessage = await convertMessageToXMsg(whatsappMessage);
             if (xMessagePayload.messageType != MessageType.TEXT) {
@@ -103,7 +102,7 @@ export class GupshupWhatsappInboundService {
                     'Content-Type': 'application/json'
                 }
             });
-            this.logger.log('OrchestratorResponse', resp)
+            this.logger.log('OrchestratorResponse', resp.data)
             const xResponse = this.convertApiResponseToXMessage(resp.data, whatsappMessage.mobile.substring(2));
             this.logger.log("OrchestratorResponse", xResponse)
             const sentResp = await this.outboundService.handleOrchestratorResponse(xResponse, adapterCredentials);
