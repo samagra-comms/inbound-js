@@ -1,14 +1,6 @@
 import { IsUUID, IsString, IsOptional, IsArray, IsEnum, IsNumber } from 'class-validator';
 import { MessageState } from '@samagra-x/xmessage';
 
-export enum MessageStatus {
-  DEFAULT = 'DEFAULT',
-  DELIVERED = 'DELIVERED',
-  RECEIVED = 'RECEIVED',
-  SENT = 'SENT',
-  PROCESSED = 'PROCESSED',
-}
-
 export class XMessageDbDto {
   @IsOptional()
   @IsUUID()
@@ -29,7 +21,7 @@ export class XMessageDbDto {
   provider?: string;
 
   @IsNumber()
-  timestamp: string;
+  timestamp: number;
 
   @IsOptional()
   @IsString()
@@ -88,7 +80,7 @@ export class XMessageDbDto {
   @IsString()
   remarks?: string;
 
-  // @IsOptional()
-  // @IsEnum(MessageStatus)
-  // status?: MessageStatus;
+  @IsOptional()
+  @IsEnum(MessageState)
+  status?: MessageState;
 }
