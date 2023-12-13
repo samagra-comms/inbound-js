@@ -69,24 +69,25 @@ export class GupshupWhatsappInboundService {
 
     async handleIncomingGsWhatsappMessage(whatsappMessage: GSWhatsAppMessage) {
         const adapterCredentials = await this.getAdapterCredentials(whatsappMessage.waNumber);
-        this.logger.log("Obtained Creds")
+        this.logger.log('Obtained Creds');
         try {
             //Handle Feedback First
-            if ('interactive' in whatsappMessage) {
-                const interactiveInteraction = JSON.parse(whatsappMessage.interactive);
-                if ((interactiveInteraction.type = 'button_reply')) {
-                    //handle feedback
-                    this.logger.log('Feedback is not being handled right now!');
-                    return;
-                }
+            if (
+                'replyId' in whatsappMessage &&
+                'text' in whatsappMessage &&
+                (whatsappMessage.text == '👍' || whatsappMessage.text == '👎')
+            ) {
+                //handle feedback
+                this.logger.log('Feedback is not being handled right now!');
+                return;
             }
 
             const xMessagePayload: XMessage = await convertMessageToXMsg(whatsappMessage);
             if (xMessagePayload.messageType != MessageType.TEXT) {
-                throw new Error("Media Type Not Supported");
+                throw new Error('Media Type Not Supported');
             }
 
-            this.logger.log("Converted Message:", xMessagePayload)
+            this.logger.log('Converted Message:', xMessagePayload);
             xMessagePayload.from.userID = uuid4();
             xMessagePayload.to.userID = uuid4();
             xMessagePayload.messageId.Id = uuid4();
@@ -94,7 +95,7 @@ export class GupshupWhatsappInboundService {
             xMessagePayload.to.bot = true;
             xMessagePayload.to.meta = xMessagePayload.to.meta || new Map<string, string>();
             xMessagePayload.to.meta.set('botMobileNumber', whatsappMessage.waNumber);
-            console.log(xMessagePayload)
+            console.log(xMessagePayload);
 
             const orchestratorServiceUrl = this.configService.get<string>('ORCHESTRATOR_API_ENDPOINT');
             const resp = await axios.post(`${orchestratorServiceUrl}/prompt`, xMessagePayload, {
@@ -102,15 +103,15 @@ export class GupshupWhatsappInboundService {
                     'Content-Type': 'application/json'
                 }
             });
-            this.logger.log('OrchestratorResponse', resp.data)
+            this.logger.log('OrchestratorResponse', resp.data);
             const xResponse = this.convertApiResponseToXMessage(resp.data, whatsappMessage.mobile.substring(2));
-            this.logger.log("OrchestratorResponse", xResponse)
+            this.logger.log('OrchestratorResponse', xResponse);
             const sentResp = await this.outboundService.handleOrchestratorResponse(xResponse, adapterCredentials);
-            this.logger.log("OutboundResponse",sentResp)
+            this.logger.log('OutboundResponse', sentResp);
         } catch (error) {
-            let errorText = 'Something went wrong. Please try again later'
-            if ( error == 'Error: Media Type Not Supported') {
-                errorText = `Sorry, I can only respond to text-based questions at the moment. Please type your question using regular text characters, and I'll be happy to help!\n\nThank you for your understanding!`
+            let errorText = 'Something went wrong. Please try again later';
+            if (error == 'Error: Media Type Not Supported') {
+                errorText = `Sorry, I can only respond to text-based questions at the moment. Please type your question using regular text characters, and I'll be happy to help!\n\nThank you for your understanding!`;
             }
             const errorResponse = this.convertApiResponseToXMessage(
                 {
