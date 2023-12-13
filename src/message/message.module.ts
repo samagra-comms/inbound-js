@@ -7,10 +7,11 @@ import { CredentialService } from './services/credentials/credentials.service';
 import { OutboundMessageController } from './controllers/outbound/outbound.controller';
 import { UserModule } from 'src/user/user.module';
 import { SupabaseService } from './services/supabase.service';
+import { FeedbackService } from './services/feedback/feedback.service';
 
 @Module({
     imports: [ConfigModule.forRoot(), UserModule],
     controllers: [GupshupWhatsappInboundController, OutboundMessageController],
-    providers: [GupshupWhatsappInboundService, OutboundService, CredentialService, SupabaseService]
+    providers: [GupshupWhatsappInboundService, OutboundService, CredentialService, SupabaseService, FeedbackService]
 })
 export class MessageModule {}
