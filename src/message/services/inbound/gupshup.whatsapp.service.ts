@@ -154,10 +154,10 @@ export class GupshupWhatsappInboundService {
 
             this.logger.log('OrchestratorResponse', resp.data);
             //remove after this with active outbound
-            const xResponse = this.convertApiResponseToXMessage(resp.data, whatsappMessage.mobile.substring(2));
-            this.logger.log('OrchestratorResponse', xResponse);
-            const sentResp = await this.outboundService.handleOrchestratorResponse(xResponse, adapterCredentials);
-            this.logger.log('OutboundResponse', sentResp);
+            // const xResponse = this.convertApiResponseToXMessage(resp.data, whatsappMessage.mobile.substring(2));
+            // this.logger.log('OrchestratorResponse', xResponse);
+            // const sentResp = await this.outboundService.handleOrchestratorResponse(xResponse, adapterCredentials);
+            // this.logger.log('OutboundResponse', sentResp);
 
         } catch (error) {
             let errorText = 'Something went wrong. Please try again later';
