@@ -7,14 +7,12 @@ import { v4 as uuid4 } from 'uuid';
 import { OutboundService } from '../outbound/outbound.service';
 import { XMessage, MessageType, MessageState } from '@samagra-x/xmessage';
 import { CredentialService } from '../credentials/credentials.service';
-import { UserService } from 'src/user/user.service';
 import { FeedbackService } from '../feedback/feedback.service';
 
 @Injectable()
 export class GupshupWhatsappInboundService {
     constructor(
-        private readonly configService: ConfigService,
-        private readonly userService: UserService,
+        private configService: ConfigService,
         private readonly outboundService: OutboundService,
         private readonly credentialService: CredentialService,
         private readonly feedbackService: FeedbackService
