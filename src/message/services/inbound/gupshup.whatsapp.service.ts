@@ -91,6 +91,9 @@ export class GupshupWhatsappInboundService {
                 }
                 return;
             }
+            if (whatsappMessage.type == 'voice') {
+                throw new Error('Media Type Not Supported');
+            }
 
             const xMessagePayload: XMessage = await convertMessageToXMsg(whatsappMessage);
             if (xMessagePayload.messageType != MessageType.TEXT) {
