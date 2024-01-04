@@ -21,7 +21,7 @@ export class SupabaseService {
             fromid: msg.from.userID,
             channel: msg.channelURI,
             provider: msg.providerURI,
-            timestamp: msg.timestamp,
+            timestamp: new Date(msg.timestamp).toISOString(),
             messagestate: msg.messageState,
             app: msg.app,
             xmessage: msg,
@@ -60,7 +60,7 @@ export class SupabaseService {
 
     async writeMessage(message: XMessage): Promise<any> {
         const msgData = this.createXMessageDTO(message);
-        const { data, error } = await this.supabase.from('xmessage').insert([message]);
+        const { data, error } = await this.supabase.from('xmessage').insert([msgData]);
         if (error) throw error;
         return data;
     }

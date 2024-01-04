@@ -1,4 +1,4 @@
-import { IsUUID, IsString, IsOptional, IsArray, IsEnum, IsNumber } from 'class-validator';
+import { IsUUID, IsString, IsOptional, IsArray, IsEnum, IsNumber, isString } from 'class-validator';
 import { MessageState } from '@samagra-x/xmessage';
 
 export class XMessageDbDto {
@@ -20,8 +20,8 @@ export class XMessageDbDto {
   @IsString()
   provider?: string;
 
-  @IsNumber()
-  timestamp: number;
+  @IsString()
+  timestamp: string;
 
   @IsOptional()
   @IsString()
