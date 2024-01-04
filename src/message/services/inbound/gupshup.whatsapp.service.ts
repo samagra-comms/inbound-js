@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { GSWhatsAppMessage, convertMessageToXMsg } from '@samagra-x/gupshup-whatsapp-adapter';
+import { Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { GSWhatsAppMessage, GupshupWhatsappProvider } from '@samagra-x/gupshup-whatsapp-adapter';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { v4 as uuid4 } from 'uuid';
@@ -15,13 +15,13 @@ export class GupshupWhatsappInboundService {
         private configService: ConfigService,
         private readonly outboundService: OutboundService,
         private readonly credentialService: CredentialService,
-        private readonly feedbackService: FeedbackService
+        private readonly feedbackService: FeedbackService,
     ) {}
     private readonly logger = new Logger(GupshupWhatsappInboundService.name);
 
     convertApiResponseToXMessage(data: any, phoneNumber): XMessage {
         return {
-            adapterId: '7b0cf232-38a2-4f9b-8070-9b988ff94c2c',
+            adapterId: data.adapterId,
             messageType: data.messageType,
             messageId: data.messageId,
             to: { userID: phoneNumber },
@@ -34,42 +34,11 @@ export class GupshupWhatsappInboundService {
         };
     }
 
-    async getAdapterCredentials(number: string) {
-        if (number.endsWith('88')) {
-            const vaultResponse = await this.credentialService.getCredentialsFromVault(
-                this.configService.get<string>('VAULT_SERVICE_URL'),
-                '/admin/secret/gupshupWhatsappVariable',
-                {
-                    ownerId: '8f7ee860-0163-4229-9d2a-01cef53145ba',
-                    ownerOrgId: 'org1',
-                    'admin-token': this.configService.get<string>('VAULT_SERVICE_TOKEN')
-                }
-            );
-
-            const credentials = vaultResponse['result']['gupshupWhatsappVariable'];
-            return credentials;
-        } else if (number.endsWith('87')) {
-            const vaultResponse = await this.credentialService.getCredentialsFromVault(
-                this.configService.get<string>('VAULT_SERVICE_URL'),
-                '/admin/secret/gupshupWhatsappVariable2',
-                {
-                    ownerId: '8f7ee860-0163-4229-9d2a-01cef53145ba',
-                    ownerOrgId: 'org1',
-                    'admin-token': this.configService.get<string>('VAULT_SERVICE_TOKEN')
-                }
-            );
-
-            const credentials = vaultResponse['result']['gupshupWhatsappVariable2'];
-            return credentials;
-        } else {
-            //throw error
-            return;
+    async handleIncomingGsWhatsappMessage(adapterId: string, whatsappMessage: GSWhatsAppMessage) {
+        const adapterCredentials = await this.credentialService.getCredentialsForAdapter(adapterId);
+        if (!adapterCredentials) {
+            throw new NotFoundException('Adapter credentials not found!');
         }
-    }
-
-    async handleIncomingGsWhatsappMessage(whatsappMessage: GSWhatsAppMessage) {
-        const adapterCredentials = await this.getAdapterCredentials(whatsappMessage.waNumber);
-
         try {
             //Handle Feedback
             const thumbsUpEmojis = ['👍', '👍🏻', '👍🏼', '👍🏽', '👍🏾', '👍🏿'];
@@ -93,7 +62,8 @@ export class GupshupWhatsappInboundService {
                 throw new Error('Media Type Not Supported');
             }
 
-            const xMessagePayload: XMessage = await convertMessageToXMsg(whatsappMessage);
+            const xMessagePayload: XMessage = await new GupshupWhatsappProvider().convertMessageToXMsg(whatsappMessage);
+            xMessagePayload.adapterId = adapterId;
             if (xMessagePayload.messageType != MessageType.TEXT) {
                 throw new Error('Media Type Not Supported');
             }
@@ -111,15 +81,15 @@ export class GupshupWhatsappInboundService {
             xMessagePayload.from.meta = xMessagePayload.from.meta || new Map<string, string>();
             xMessagePayload.from.meta.set('mobileNumber', whatsappMessage.mobile.substring(2));
 
-            //Send Template response before the actuar response because the actual response takes time
+            //Send Template response before the actuar response because the actual response takes time.
             const templateResponse = this.convertApiResponseToXMessage(
                 {
-                    adapterId: '7b0cf232-38a2-4f9b-8070-9b988ff94c2c',
+                    adapterId: adapterId,
                     messageType: MessageType.TEXT,
-                    messageId: {},
+                    messageId: { Id: xMessagePayload.messageId.Id },
                     from: { userID: 'admin' },
-                    channelURI: 'WhatsApp',
-                    providerURI: 'gupshup',
+                    channelURI: 'Whatsapp',
+                    providerURI: 'Gupshup',
                     timestamp: Date.now(),
                     messageState: MessageState.REPLIED,
                     payload: {
@@ -128,8 +98,7 @@ export class GupshupWhatsappInboundService {
                 },
                 whatsappMessage.mobile.substring(2)
             );
-
-            const tempResp = await this.outboundService.handleOrchestratorResponse(
+            await this.outboundService.handleOrchestratorResponse(
                 templateResponse,
                 adapterCredentials
             );
@@ -167,12 +136,12 @@ export class GupshupWhatsappInboundService {
             }
             const errorResponse = this.convertApiResponseToXMessage(
                 {
-                    adapterId: '7b0cf232-38a2-4f9b-8070-9b988ff94c2c',
+                    adapterId: adapterId,
                     messageType: MessageType.TEXT,
-                    messageId: {},
+                    messageId: {id: uuid4()},
                     from: { userID: 'admin' },
-                    channelURI: 'WhatsApp',
-                    providerURI: 'gupshup',
+                    channelURI: 'Whatsapp',
+                    providerURI: 'Gupshup',
                     timestamp: Date.now(),
                     messageState: MessageState.REPLIED,
                     payload: { text: errorText }

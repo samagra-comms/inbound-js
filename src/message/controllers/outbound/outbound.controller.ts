@@ -1,18 +1,21 @@
 import { Body, Controller, Logger, Post } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { MessageState, XMessage } from '@samagra-x/xmessage';
+import { CredentialService } from 'src/message/services/credentials/credentials.service';
 import { OutboundService } from 'src/message/services/outbound/outbound.service';
+import { AdapterFactory } from '@samagra-x/adapter-factory';
 
 @Controller('/outbound/gupshup/whatsapp')
 export class OutboundMessageController {
-    constructor(private readonly outboundService: OutboundService, private readonly configService: ConfigService,) {}
+    constructor(
+        private readonly outboundService: OutboundService,
+        private readonly credentialService: CredentialService,
+    ) {}
     private readonly logger = new Logger(OutboundMessageController.name);
 
     @Post()
     async handleIncomingXMessage(@Body() orchestratorRequest: XMessage): Promise<any> {
         this.logger.log('Orchestrator Request', orchestratorRequest);
-        const botMobileNumber = this.configService.get<string>('BOT_MOBILE_NUMBER')
-        const credentials = await this.outboundService.getAdapterCredentials(botMobileNumber);
+        const credentials = await this.credentialService.getCredentialsForAdapter(orchestratorRequest.adapterId);
         orchestratorRequest.messageState = MessageState.REPLIED;
         await this.outboundService.handleOrchestratorResponse(orchestratorRequest, credentials);
     }

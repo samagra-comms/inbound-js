@@ -8,10 +8,23 @@ import { OutboundMessageController } from './controllers/outbound/outbound.contr
 import { UserModule } from 'src/user/user.module';
 import { SupabaseService } from './services/supabase.service';
 import { FeedbackService } from './services/feedback/feedback.service';
+import { TelegramBotController } from './controllers/inbound/telegram.bot.controller';
+import { WebClientProvider } from './services/webclient/webclient.provider';
 
 @Module({
     imports: [ConfigModule.forRoot(), UserModule],
-    controllers: [GupshupWhatsappInboundController, OutboundMessageController],
-    providers: [GupshupWhatsappInboundService, OutboundService, CredentialService, SupabaseService, FeedbackService]
+    controllers: [
+        GupshupWhatsappInboundController,
+        TelegramBotController,
+        OutboundMessageController
+    ],
+    providers: [
+        GupshupWhatsappInboundService,
+        OutboundService,
+        CredentialService,
+        SupabaseService,
+        FeedbackService,
+        WebClientProvider,
+    ]
 })
 export class MessageModule {}

@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Logger } from '@nestjs/common';
-import { GSWhatsAppMessage, convertMessageToXMsg } from '@samagra-x/gupshup-whatsapp-adapter';
+import { Controller, Get, Post, Body, Logger, Param } from '@nestjs/common';
+import { GSWhatsAppMessage, GupshupWhatsappProvider } from '@samagra-x/gupshup-whatsapp-adapter';
 import { GupshupWhatsappInboundService } from '../../services/inbound/gupshup.whatsapp.service';
 import { SupabaseService } from '../../../message/services/supabase.service';
 import { XMessage } from '@samagra-x/xmessage';
@@ -17,17 +17,20 @@ export class GupshupWhatsappInboundController {
         return 'Endpoint Active!';
     }
 
-    @Post()
-    async handleIncomingMessageData(@Body() requestData: GSWhatsAppMessage): Promise<any> {
+    @Post(':adapterId')
+    async handleIncomingMessageData(
+        @Param('adapterId') adapterId: string,
+        @Body() requestData: GSWhatsAppMessage,
+    ): Promise<any> {
         this.logger.log(requestData)
         // TODO: Find a better way to distinguish between whatsapp message and report.
-		if ("mobile" in requestData){
+		if ("mobile" in requestData) {
             this.logger.log("Received whatsapp message from user.");
-			await this.inboundService.handleIncomingGsWhatsappMessage(requestData);
+			await this.inboundService.handleIncomingGsWhatsappMessage(adapterId, requestData);
 		}
         else {
             this.logger.log("Received delivery report for whatsapp.");
-            const reportXmsg: XMessage = await convertMessageToXMsg(requestData);
+            const reportXmsg: XMessage = await new GupshupWhatsappProvider().convertMessageToXMsg(requestData);
             await this.supabaseService.writeMessage(reportXmsg);
         }
     }
