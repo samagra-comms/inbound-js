@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Logger, Param } from '@nestjs/common';
-import { GSWhatsAppMessage, GupshupWhatsappProvider } from '@samagra-x/gupshup-whatsapp-adapter';
+import { GSWhatsAppMessage, GupshupWhatsappProvider } from '@samagra-x/uci-adapters-gupshup-whatsapp-adapter';
 import { GupshupWhatsappInboundService } from '../../services/inbound/gupshup.whatsapp.service';
 import { SupabaseService } from '../../../message/services/supabase.service';
 import { XMessage } from '@samagra-x/xmessage';

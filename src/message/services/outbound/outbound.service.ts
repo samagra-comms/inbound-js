@@ -1,12 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
     XMessage,
     convertXMessageToIChatOptions,
     convertXMessageToIEmailOptions,
     convertXMessageToISmsOptions,
 } from '@samagra-x/xmessage';
-import { AdapterFactory, AdapterType } from  '@samagra-x/adapter-factory';
+import { AdapterFactory, AdapterType } from  '@samagra-x/uci-adapters-factory';
 
 @Injectable()
 export class OutboundService {

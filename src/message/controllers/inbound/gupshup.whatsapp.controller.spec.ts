@@ -5,7 +5,6 @@ import { ConfigService } from "@nestjs/config";
 import { GupshupWhatsappInboundService } from "../../../message/services/inbound/gupshup.whatsapp.service";
 import { OutboundService } from "../../../message/services/outbound/outbound.service";
 import { CredentialService } from "../../../message/services/credentials/credentials.service";
-import { XMessage } from "@samagra-x/xmessage";
 import { FeedbackService } from "../../../message/services/feedback/feedback.service";
 
 describe('Whatsapp inbound controller', () => {

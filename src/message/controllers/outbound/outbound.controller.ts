@@ -2,7 +2,6 @@ import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { MessageState, XMessage } from '@samagra-x/xmessage';
 import { CredentialService } from 'src/message/services/credentials/credentials.service';
 import { OutboundService } from 'src/message/services/outbound/outbound.service';
-import { AdapterFactory } from '@samagra-x/adapter-factory';
 
 @Controller('/outbound/gupshup/whatsapp')
 export class OutboundMessageController {
