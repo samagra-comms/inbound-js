@@ -1,5 +1,5 @@
-import { Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
-import { GSWhatsAppMessage, GupshupWhatsappProvider } from '@samagra-x/gupshup-whatsapp-adapter';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { GSWhatsAppMessage, GupshupWhatsappProvider } from '@samagra-x/uci-adapters-gupshup-whatsapp-adapter';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { v4 as uuid4 } from 'uuid';
