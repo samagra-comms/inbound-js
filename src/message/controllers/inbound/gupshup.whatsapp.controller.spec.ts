@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { SupabaseService } from "../../../message/services/supabase.service";
+import { SupabaseService } from "../../services/supabase/supabase.service";
 import { GupshupWhatsappInboundController } from "./gupshup.whatsapp.controller";
 import { ConfigService } from "@nestjs/config";
 import { GupshupWhatsappInboundService } from "../../../message/services/inbound/gupshup.whatsapp.service";

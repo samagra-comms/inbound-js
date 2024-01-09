@@ -1,12 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { XMessage, MessageState } from '@samagra-x/xmessage';
-import { XMessageDbDto } from '../dto/xmessage.dto';
+import { XMessageDbDto } from '../../dto/xmessage.dto';
 import { ConfigService } from '@nestjs/config';
 
+// TODO: Define type of supabase table data
 @Injectable()
 export class SupabaseService {
     private supabase: SupabaseClient;
+    private logger = new Logger(SupabaseService.name);
 
     constructor(private readonly configService: ConfigService) {
         this.supabase = createClient(
@@ -85,5 +87,29 @@ export class SupabaseService {
 
         if (error) throw error;
         return data;
+    }
+
+    async getUserHistory(userID: string, botuuid: string): Promise<any[]> {
+        const { data, error } = await this.supabase
+            .from('xmessage')
+            .select('xmessage')
+            .or(
+                `fromid.eq.${userID},` +
+                `userid.eq.${userID}`
+            )
+            .eq('messagestate', 'REPLIED')
+            .eq('app', botuuid);
+
+        if (error) {
+            this.logger.error(error);
+            return [];
+        }
+        else {
+            return data
+            .filter(xmsg => xmsg.xmessage != null)
+            .flatMap(xmsg => {
+                return JSON.parse(xmsg.xmessage);
+            });
+        }
     }
 }

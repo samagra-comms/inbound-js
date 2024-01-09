@@ -6,7 +6,7 @@ import { OutboundService } from './services/outbound/outbound.service';
 import { CredentialService } from './services/credentials/credentials.service';
 import { OutboundMessageController } from './controllers/outbound/outbound.controller';
 import { UserModule } from 'src/user/user.module';
-import { SupabaseService } from './services/supabase.service';
+import { SupabaseService } from './services/supabase/supabase.service';
 import { FeedbackService } from './services/feedback/feedback.service';
 import { TelegramBotController } from './controllers/inbound/telegram.bot.controller';
 import { WebClientProvider } from './services/webclient/webclient.provider';

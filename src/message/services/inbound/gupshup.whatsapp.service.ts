@@ -8,6 +8,7 @@ import { OutboundService } from '../outbound/outbound.service';
 import { XMessage, MessageType, MessageState } from '@samagra-x/xmessage';
 import { CredentialService } from '../credentials/credentials.service';
 import { FeedbackService } from '../feedback/feedback.service';
+import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
 export class GupshupWhatsappInboundService {
@@ -16,6 +17,7 @@ export class GupshupWhatsappInboundService {
         private readonly outboundService: OutboundService,
         private readonly credentialService: CredentialService,
         private readonly feedbackService: FeedbackService,
+        private readonly supabaseService: SupabaseService,
     ) {}
     private readonly logger = new Logger(GupshupWhatsappInboundService.name);
 
@@ -30,11 +32,18 @@ export class GupshupWhatsappInboundService {
             providerURI: data.providerURI,
             timestamp: data.timestamp,
             messageState: MessageState.REPLIED,
-            payload: data.payload
+            payload: data.payload,
+            app: data.app
         };
     }
 
-    async handleIncomingGsWhatsappMessage(adapterId: string, whatsappMessage: GSWhatsAppMessage) {
+    // TODO: define botData type
+    async handleIncomingGsWhatsappMessage(botData: any, whatsappMessage: GSWhatsAppMessage) {
+        const adapterId = botData.logicIDs[0]?.adapter?.id;
+        if (!adapterId) {
+            this.logger.error(`Adapter data not present in bot: ${botData}`);
+            throw new NotFoundException('Adapter data not present in bot!');
+        }
         const adapterCredentials = await this.credentialService.getCredentialsForAdapter(adapterId);
         if (!adapterCredentials) {
             throw new NotFoundException('Adapter credentials not found!');
@@ -69,8 +78,6 @@ export class GupshupWhatsappInboundService {
             }
 
             this.logger.log('Converted Message:', xMessagePayload);
-            xMessagePayload.from.userID = uuid4();
-            xMessagePayload.to.userID = uuid4();
             xMessagePayload.messageId.Id = uuid4();
 
             xMessagePayload.to.bot = true;
@@ -80,6 +87,10 @@ export class GupshupWhatsappInboundService {
             xMessagePayload.from.bot = false;
             xMessagePayload.from.meta = xMessagePayload.from.meta || new Map<string, string>();
             xMessagePayload.from.meta.set('mobileNumber', whatsappMessage.mobile.substring(2));
+            xMessagePayload.app = botData.id;
+
+            // Saving history of what user said
+            this.supabaseService.writeMessage(xMessagePayload);
 
             //Send Template response before the actuar response because the actual response takes time.
             const templateResponse = this.convertApiResponseToXMessage(
@@ -94,7 +105,8 @@ export class GupshupWhatsappInboundService {
                     messageState: MessageState.REPLIED,
                     payload: {
                         text: 'Thank you for your question! Our chatbot is working diligently to provide you with the best possible answer. Generating responses may take a moment, so please be patient.'
-                    }
+                    },
+                    app: botData.id,
                 },
                 whatsappMessage.mobile.substring(2)
             );
@@ -116,11 +128,22 @@ export class GupshupWhatsappInboundService {
             xMessagePayload.from.meta.forEach((val: string, key: string) => {
                 payload.from.meta[key] = val;
             });
-            const resp = await axios.post(`${orchestratorServiceUrl}/prompt`, payload, {
-                headers: {
-                    'Content-Type': 'application/json'
+
+            const userHistory = await this.supabaseService.getUserHistory(xMessagePayload.from.userID, botData.id);
+
+            const resp = await axios.post(
+                `${orchestratorServiceUrl}/prompt`,
+                {
+                    'botId': botData.id,
+                    'message': payload,
+                    'userHistory': userHistory
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
-            });
+            );
 
             this.logger.log('OrchestratorResponse', resp.data);
             //remove after this with active outbound
@@ -144,7 +167,8 @@ export class GupshupWhatsappInboundService {
                     providerURI: 'Gupshup',
                     timestamp: Date.now(),
                     messageState: MessageState.REPLIED,
-                    payload: { text: errorText }
+                    payload: { text: errorText },
+                    app: botData.id,
                 },
                 whatsappMessage.mobile.substring(2)
             );
