@@ -6,13 +6,19 @@ import {
     convertXMessageToISmsOptions,
 } from '@samagra-x/xmessage';
 import { AdapterFactory, AdapterType } from  '@samagra-x/uci-adapters-factory';
+import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
 export class OutboundService {
 
     private readonly logger = new Logger(OutboundService.name);
 
+    constructor(
+        readonly supabaseService: SupabaseService,
+    ) { }
+
     async handleOrchestratorResponse(orchestratorRequest: XMessage, credentials?: Record<string, string>) {
+        this.supabaseService.writeMessage(orchestratorRequest);
         const adapterType = `${orchestratorRequest.providerURI}${orchestratorRequest.channelURI}`;
         const adapter = AdapterFactory.getAdapter({
             type: adapterType,
