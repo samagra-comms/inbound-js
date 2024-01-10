@@ -44,7 +44,7 @@ export class OutboundService {
                 convertXMessageToIChatOptions(orchestratorRequest)
             );
         }
-        else if (AdapterFactory.getAdapterType(adapterType) == AdapterType.GUPSHUP_WHATSAPP) {
+        else if (AdapterFactory.getAdapterType(adapterType) == AdapterType.XMESSAGE) {
             //@ts-ignore
             adapterResponse = await adapter.sendMessage(orchestratorRequest);
         }
