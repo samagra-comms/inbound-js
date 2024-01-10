@@ -4,7 +4,7 @@ FROM node:18-bullseye AS builder
 WORKDIR /app
 
 # Copy package.json and yarn.lock files
-COPY package.json yarn.lock ./
+COPY package.json ./
 
 # Install dependencies
 RUN yarn install
