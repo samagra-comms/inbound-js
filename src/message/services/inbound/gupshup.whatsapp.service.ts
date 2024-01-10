@@ -117,7 +117,8 @@ export class GupshupWhatsappInboundService {
 
             const orchestratorServiceUrl = this.configService.get<string>('ORCHESTRATOR_API_ENDPOINT');
 
-
+            // TODO: fix this later
+            delete xMessagePayload.messageId.channelMessageId;
             // Map<string,string>() cannot be sent in request body
             const payload = JSON.parse(JSON.stringify(xMessagePayload));
 
