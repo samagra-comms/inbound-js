@@ -21,7 +21,7 @@ export class OutboundService {
         this.supabaseService.writeMessage(orchestratorRequest);
         const adapterType = `${orchestratorRequest.providerURI}${orchestratorRequest.channelURI}`;
         const adapter = AdapterFactory.getAdapter({
-            type: adapterType,
+        type: adapterType,
             config: credentials
         });
         let adapterResponse;

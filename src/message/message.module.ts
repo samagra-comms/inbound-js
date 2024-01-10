@@ -11,12 +11,15 @@ import { FeedbackService } from './services/feedback/feedback.service';
 import { TelegramBotController } from './controllers/inbound/telegram.bot.controller';
 import { WebClientProvider } from './services/webclient/webclient.provider';
 import { TelegramBotService } from './services/inbound/telegram.bot.service';
+import { PwaBotController } from './controllers/inbound/pwa.bot.controller';
+import { PwaBotService } from './services/inbound/pwa.bot.service';
 
 @Module({
     imports: [ConfigModule.forRoot(), UserModule],
     controllers: [
         GupshupWhatsappInboundController,
         TelegramBotController,
+        PwaBotController,
         OutboundMessageController
     ],
     providers: [
@@ -27,6 +30,7 @@ import { TelegramBotService } from './services/inbound/telegram.bot.service';
         SupabaseService,
         FeedbackService,
         WebClientProvider,
+        PwaBotService,
     ]
 })
 export class MessageModule {}
