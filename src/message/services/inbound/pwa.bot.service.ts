@@ -5,6 +5,7 @@ import { SupabaseService } from "../supabase/supabase.service";
 import axios from "axios";
 import { ConfigService } from "@nestjs/config";
 import { OutboundService } from "../outbound/outbound.service";
+import { v4 as uuid4 } from 'uuid';
 
 @Injectable()
 export class PwaBotService {
@@ -39,6 +40,7 @@ export class PwaBotService {
         const templateResp = JSON.parse(JSON.stringify(xmsg));
         templateResp.to.userID = xmsg.from.userID;
         templateResp.from.userID = xmsg.to.userID;
+        templateResp.messageId.Id = uuid4();
         templateResp.payload.text = 'Thank you for your question! Our chatbot is working diligently to provide you with the best possible answer. Generating responses may take a moment, so please be patient.';
         await this.outboundService.handleOrchestratorResponse(templateResp, adapterCredentials);
 
