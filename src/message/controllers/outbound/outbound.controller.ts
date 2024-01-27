@@ -3,7 +3,7 @@ import { MessageState, XMessage } from '@samagra-x/xmessage';
 import { CredentialService } from 'src/message/services/credentials/credentials.service';
 import { OutboundService } from 'src/message/services/outbound/outbound.service';
 
-@Controller('/outbound/gupshup/whatsapp')
+@Controller('/outbound')
 export class OutboundMessageController {
     constructor(
         private readonly outboundService: OutboundService,

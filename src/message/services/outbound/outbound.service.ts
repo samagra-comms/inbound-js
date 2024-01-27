@@ -24,29 +24,28 @@ export class OutboundService {
         type: adapterType,
             config: credentials
         });
-        let adapterResponse;
         if (AdapterFactory.getAdapterType(adapterType) == AdapterType.EMAIL) {
-            adapterResponse = await adapter.sendMessage(
+            adapter.sendMessage(
                 //@ts-ignore
                 convertXMessageToIEmailOptions(orchestratorRequest)
             );
         }
         else if (AdapterFactory.getAdapterType(adapterType) == AdapterType.SMS) {
-            adapterResponse = await adapter.sendMessage(
+            adapter.sendMessage(
                 //@ts-ignore
                 convertXMessageToISmsOptions(orchestratorRequest)
             );
         }
         else if (AdapterFactory.getAdapterType(adapterType) == AdapterType.CHAT) {
             //@ts-ignore
-            adapterResponse = await adapter.sendMessage(
+            adapter.sendMessage(
                 //@ts-ignore
                 convertXMessageToIChatOptions(orchestratorRequest)
             );
         }
         else if (AdapterFactory.getAdapterType(adapterType) == AdapterType.XMESSAGE) {
             //@ts-ignore
-            adapterResponse = await adapter.sendMessage(orchestratorRequest);
+            adapter.sendMessage(orchestratorRequest);
         }
         else {
             //@ts-ignore

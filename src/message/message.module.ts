@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { GupshupWhatsappInboundController } from './controllers/inbound/gupshup.whatsapp.controller';
-import { GupshupWhatsappInboundService } from './services/inbound/gupshup.whatsapp.service';
 import { ConfigModule } from '@nestjs/config';
 import { OutboundService } from './services/outbound/outbound.service';
 import { CredentialService } from './services/credentials/credentials.service';
@@ -8,29 +6,23 @@ import { OutboundMessageController } from './controllers/outbound/outbound.contr
 import { UserModule } from 'src/user/user.module';
 import { SupabaseService } from './services/supabase/supabase.service';
 import { FeedbackService } from './services/feedback/feedback.service';
-import { TelegramBotController } from './controllers/inbound/telegram.bot.controller';
+import { InboundBotController } from './controllers/inbound/inbound.bot.controller';
 import { WebClientProvider } from './services/webclient/webclient.provider';
-import { TelegramBotService } from './services/inbound/telegram.bot.service';
-import { PwaBotController } from './controllers/inbound/pwa.bot.controller';
-import { PwaBotService } from './services/inbound/pwa.bot.service';
+import { InboundService } from './services/inbound/inbound.bot.service';
 
 @Module({
     imports: [ConfigModule.forRoot(), UserModule],
     controllers: [
-        GupshupWhatsappInboundController,
-        TelegramBotController,
-        PwaBotController,
+        InboundBotController,
         OutboundMessageController
     ],
     providers: [
-        GupshupWhatsappInboundService,
-        TelegramBotService,
+        InboundService,
         OutboundService,
         CredentialService,
         SupabaseService,
         FeedbackService,
         WebClientProvider,
-        PwaBotService,
     ]
 })
 export class MessageModule {}

@@ -30,7 +30,7 @@ export class CredentialService {
         }
     }
 
-    private async getCredentialsFromVault(
+    async getCredentialsFromVault(
         variableName: string,
     ): Promise<any> {
         const response = await this.webClientProvider.getUciApiWebClient({

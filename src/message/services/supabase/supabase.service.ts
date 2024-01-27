@@ -27,7 +27,6 @@ export class SupabaseService {
             messagestate: msg.messageState,
             app: msg.app,
             xmessage: msg,
-            //auxdata:
             messageid: msg.messageId.channelMessageId,
             replyid: msg.messageId.replyId,
             status: msg.messageState

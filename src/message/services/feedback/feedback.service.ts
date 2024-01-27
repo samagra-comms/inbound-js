@@ -8,17 +8,21 @@ export class FeedbackService {
 
     constructor(private readonly configService: ConfigService) {}
 
-    async givePositiveFeedback(messageId) {
+    async givePositiveFeedback(messageId: string) {
         const orchestratorUrl = this.configService.get<string>('ORCHESTRATOR_API_ENDPOINT');
         const feedbackUrl = `${orchestratorUrl}/feedback/query/like/${messageId}`;
 
         await axios.get(feedbackUrl);
     }
     
-    async giveNegativeFeedback(messageId) {
+    async giveNegativeFeedback(messageId: string) {
         const orchestratorUrl = this.configService.get<string>('ORCHESTRATOR_API_ENDPOINT');
         const feedbackUrl = `${orchestratorUrl}/feedback/query/dislike/${messageId}`;
 
         await axios.get(feedbackUrl)
+    }
+
+    async giveNeutralFeedback(messageId: string) {
+        console.warn("Neutral Feedback not implemented!");
     }
 }

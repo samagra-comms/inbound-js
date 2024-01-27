@@ -1,14 +1,14 @@
 import { Controller, Get, Post, Body, Logger, Param, NotFoundException } from '@nestjs/common';
-import { TelegramBotService } from 'src/message/services/inbound/telegram.bot.service';
+import { InboundService } from 'src/message/services/inbound/inbound.bot.service';
 import { WebClientProvider } from 'src/message/services/webclient/webclient.provider';
 
-@Controller('/inbound/telegram/bot')
-export class TelegramBotController {
+@Controller('/inbound/bot')
+export class InboundBotController {
     constructor(
-        private readonly telegramBotService: TelegramBotService,
+        private readonly inboundBotService: InboundService,
         private readonly webclientProvider: WebClientProvider,
     ) {}
-    private readonly logger = new Logger(TelegramBotController.name);
+    private readonly logger = new Logger(InboundBotController.name);
 
     @Get('/health')
     async verifyEndpointIsActive(): Promise<string> {
@@ -20,7 +20,7 @@ export class TelegramBotController {
         @Param('botId') botId: string,
         @Body() updateObject
     ): Promise<any> {
-        this.logger.log("Received whatsapp message from user.");
+        this.logger.log("Received message on inbound.");
         const botFetchRequest = await this.webclientProvider.getUciApiWebClient().get(
             `/admin/bot/${botId}`
         );
@@ -28,6 +28,6 @@ export class TelegramBotController {
             this.logger.error(botFetchRequest);
             throw new NotFoundException('Bot Not Found!');
         }
-        this.telegramBotService.handleIncomingMessage(botFetchRequest.data.result, updateObject);
+        this.inboundBotService.handleIncomingMessage(botFetchRequest.data.result, updateObject);
     }
 }
